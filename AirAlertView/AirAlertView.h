@@ -8,6 +8,4 @@
 
 #import <Foundation/Foundation.h>
 
-@interface AirAlertView : NSObject
-
-@end
+#import <AirAlertView/AlertView/AIAAlertView.h>

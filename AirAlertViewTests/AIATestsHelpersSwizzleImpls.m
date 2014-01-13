@@ -85,10 +85,11 @@
     self.targetMetaClass =
             objc_getMetaClass([NSStringFromClass(self.targetClass) cStringUsingEncoding:NSUTF8StringEncoding]);
 
-    BOOL methodWasAdded = class_addMethod(self.targetMetaClass,
-                                          sourceSelector,
-                                          method_getImplementation(self.targetClassMethod),
-                                          method_getTypeEncoding(self.targetClassMethod));
+//    BOOL methodWasAdded =
+    class_addMethod(self.targetMetaClass,
+                    sourceSelector,
+                    method_getImplementation(self.targetClassMethod),
+                    method_getTypeEncoding(self.targetClassMethod));
 //    if (!methodWasAdded) {
 //        self.oldTargetImp = method_setImplementation(self.targetClassMethod, method_getImplementation(self.sourceClassMethod));
 //    }

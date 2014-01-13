@@ -23,6 +23,7 @@
 @property (nonatomic, strong) UIAlertView *nativeAlertView;
 @property (nonatomic, strong) AIAButtonDescriptor *cancelButtonDescriptor;
 @property (nonatomic, strong) NSMutableArray *buttonDescriptors;
+@property (nonatomic, strong) AIAAlertView *selfHolder;
 
 @end
 
@@ -46,9 +47,23 @@
     return self;
 }
 
+- (void)dealloc {
+    [self hide];
+}
+
 - (BOOL)isShown {
     return self.nativeAlertView.visible;
 }
+
+- (void)setNativeAlertView:(UIAlertView *)nativeAlertView {
+    if (_nativeAlertView != nativeAlertView) {
+        _nativeAlertView = nativeAlertView;
+        // While nativeAlertView presented we should retain self.
+        // Otherwise alert view cannot handle result blocks.
+        self.selfHolder = nativeAlertView ? self : nil;
+    }
+}
+
 
 - (void)addCancelButtonWithTitle:(NSString *)title actionBlock:(AIAAlertViewActionBlock)actionBlock {
     if (self.cancelButtonDescriptor) {
@@ -62,11 +77,12 @@
 }
 
 - (void)addButtonDescriptor:(AIAButtonDescriptor *)descriptor {
+    NSAssert(!self.shown, @"Buttons should not chenges while view shown.");
     [self.buttonDescriptors addObject:descriptor];
 }
 
 - (void)show {
-    if (!self.nativeAlertView) {
+    if (!self.shown) {
         self.nativeAlertView = [[UIAlertView alloc] initWithTitle:self.title
                                                           message:self.message
                                                          delegate:self
@@ -94,7 +110,28 @@
 }
 
 - (void)hide {
-//    [self.nativeAlertView dismissWithClickedButtonIndex:self.cancelButtonIndex animated:YES];
+    [self.nativeAlertView dismissWithClickedButtonIndex:self.nativeAlertView.cancelButtonIndex animated:YES];
 }
+
+
+#pragma mark - UIAlertViewDelegate implementation
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    NSParameterAssert(alertView == self.nativeAlertView);
+
+    AIAButtonDescriptor *buttonDescriptor = nil;
+    if (buttonIndex >= 0 && buttonIndex < [self.buttonDescriptors count]) {
+        buttonDescriptor = self.buttonDescriptors[buttonIndex];
+        NSParameterAssert(buttonIndex == buttonDescriptor.index);
+    }
+    else {
+        NSParameterAssert((!self.cancelButtonDescriptor && buttonIndex < 0)
+                          || (self.cancelButtonDescriptor && self.cancelButtonDescriptor.index == buttonIndex));
+        buttonDescriptor = self.cancelButtonDescriptor;
+    }
+    [buttonDescriptor perform];
+    self.nativeAlertView = nil;
+}
+
 
 @end

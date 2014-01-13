@@ -119,9 +119,9 @@
 		005017651883EBC90056C6AC /* AirAlertView */ = {
 			isa = PBXGroup;
 			children = (
-				005017681883EBC90056C6AC /* AirAlertView.h */,
-				005017661883EBC90056C6AC /* Supporting Files */,
 				C4E3E737F8E72E27B38775C1 /* AlertView */,
+				005017661883EBC90056C6AC /* Supporting Files */,
+				005017681883EBC90056C6AC /* AirAlertView.h */,
 			);
 			path = AirAlertView;
 			sourceTree = "<group>";
@@ -158,10 +158,10 @@
 		C4E3E737F8E72E27B38775C1 /* AlertView */ = {
 			isa = PBXGroup;
 			children = (
-				C4E3E9BCB41C35AC8C9A60FF /* AIAAlertView.m */,
 				C4E3EDF6DFF0FAB50D3036D6 /* AIAAlertView.h */,
-				C4E3E16650DAA9B2DD8C97D8 /* AIAButtonDescriptor.m */,
+				C4E3E9BCB41C35AC8C9A60FF /* AIAAlertView.m */,
 				C4E3EB3B198FD705DEAEDC0B /* AIAButtonDescriptor.h */,
+				C4E3E16650DAA9B2DD8C97D8 /* AIAButtonDescriptor.m */,
 			);
 			path = AlertView;
 			sourceTree = "<group>";

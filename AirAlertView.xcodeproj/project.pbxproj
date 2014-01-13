@@ -18,6 +18,7 @@
 		005017891883ED850056C6AC /* AIAAlertViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C4E3EDE4FFCA4FCCFD9E3E14 /* AIAAlertViewTests.m */; };
 		0050178E1883FE800056C6AC /* AIATestsHelpersSwizzleImpls.m in Sources */ = {isa = PBXBuildFile; fileRef = C4E3EA0F43A577A24489ABEB /* AIATestsHelpersSwizzleImpls.m */; };
 		C4E3E786BEF5A9FCB6827DC7 /* AIAAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = C4E3E9BCB41C35AC8C9A60FF /* AIAAlertView.m */; };
+		C4E3EC783EB92E630024DA5C /* AIAButtonDescriptor.m in Sources */ = {isa = PBXBuildFile; fileRef = C4E3E16650DAA9B2DD8C97D8 /* AIAButtonDescriptor.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,9 +55,11 @@
 		0050177B1883EBC90056C6AC /* AirAlertViewTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AirAlertViewTests-Info.plist"; sourceTree = "<group>"; };
 		0050177D1883EBC90056C6AC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0050177F1883EBC90056C6AC /* AirAlertViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AirAlertViewTests.m; sourceTree = "<group>"; };
+		C4E3E16650DAA9B2DD8C97D8 /* AIAButtonDescriptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIAButtonDescriptor.m; sourceTree = "<group>"; };
 		C4E3E9BCB41C35AC8C9A60FF /* AIAAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIAAlertView.m; sourceTree = "<group>"; };
 		C4E3EA0F43A577A24489ABEB /* AIATestsHelpersSwizzleImpls.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIATestsHelpersSwizzleImpls.m; sourceTree = "<group>"; };
 		C4E3EAAB9737AF13FCC48AF6 /* AIATestsHelpersSwizzleImpls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AIATestsHelpersSwizzleImpls.h; sourceTree = "<group>"; };
+		C4E3EB3B198FD705DEAEDC0B /* AIAButtonDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AIAButtonDescriptor.h; sourceTree = "<group>"; };
 		C4E3EDE4FFCA4FCCFD9E3E14 /* AIAAlertViewTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIAAlertViewTests.m; sourceTree = "<group>"; };
 		C4E3EDF6DFF0FAB50D3036D6 /* AIAAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AIAAlertView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -157,6 +160,8 @@
 			children = (
 				C4E3E9BCB41C35AC8C9A60FF /* AIAAlertView.m */,
 				C4E3EDF6DFF0FAB50D3036D6 /* AIAAlertView.h */,
+				C4E3E16650DAA9B2DD8C97D8 /* AIAButtonDescriptor.m */,
+				C4E3EB3B198FD705DEAEDC0B /* AIAButtonDescriptor.h */,
 			);
 			path = AlertView;
 			sourceTree = "<group>";
@@ -252,6 +257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C4E3E786BEF5A9FCB6827DC7 /* AIAAlertView.m in Sources */,
+				C4E3EC783EB92E630024DA5C /* AIAButtonDescriptor.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

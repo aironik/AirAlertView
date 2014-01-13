@@ -22,6 +22,8 @@
 
 @interface AIAAlertViewTests : XCTestCase
 
+@property (nonatomic, strong) AIATestsHelpersSwizzleImpls *swizzleImplsHelper;
+
 @end
 
 
@@ -33,6 +35,7 @@
 @end
 
 @interface UIAlertViewMock : UIAlertView
+@property (nonatomic, assign) BOOL viewShown;
 @end
 
 @implementation UIAlertViewMock
@@ -42,11 +45,16 @@
 }
 
 - (void)show {
-
+    self.viewShown = YES;
 }
 
-@end
+- (void)dismissWithClickedButtonIndex:(NSInteger)buttonIndex animated:(BOOL)animated {
+    self.viewShown = NO;
+    [super dismissWithClickedButtonIndex:buttonIndex animated:animated];
+}
 
+
+@end
 
 
 #pragma mark - Implementation
@@ -55,9 +63,14 @@
 
 - (void)setUp {
     [super setUp];
+    self.swizzleImplsHelper = [AIATestsHelpersSwizzleImpls replaceSourceSelector:@selector(allocAlertView)
+                                                                     sourceClass:[UIAlertViewMock class]
+                                                                  targetSelector:@selector(alloc)
+                                                                     targetClass:[UIAlertView class]];
 }
 
 - (void)tearDown {
+    [self.swizzleImplsHelper revert];
     [super tearDown];
 }
 
@@ -71,11 +84,6 @@
 }
 
 - (void)testShownAlertViewWithoutButtonsShouldHaveCancelButton {
-    AIATestsHelpersSwizzleImpls *helper = [AIATestsHelpersSwizzleImpls replaceSourceSelector:@selector(allocAlertView)
-                                                                                 sourceClass:[UIAlertViewMock class]
-                                                                              targetSelector:@selector(alloc)
-                                                                                 targetClass:[UIAlertView class]];
-
     NSString *title = @"test title";
     NSString *message = @"test message";
     AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:title message:message];
@@ -85,17 +93,25 @@
     XCTAssertNotNil(nativeAlertView, @"Shown nativeAlertView is empty");
     XCTAssertEqualObjects(nativeAlertView.title, title, @"AIAAlertView created with different title");
     XCTAssertEqualObjects(nativeAlertView.message, message, @"AIAAlertView created with different title");
-
-    [helper revert];
+    XCTAssert(nativeAlertView.numberOfButtons == 1, @"AIAAlertView should add only Cancel button");
+    XCTAssert(nativeAlertView.cancelButtonIndex == 0, @"AIAAlertView should add only Cancel button");
+    XCTAssertEqual(nativeAlertView.delegate, alertView, @"AIAAlertView should set self as UIAlertView delegate");
 }
 
 - (void)testCreateAlertViewWithCancelButton {
     NSString *title = @"test title";
     NSString *message = @"test message";
+    NSString *buttonTitle = @"CancelButton";
     AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:title message:message];
-    XCTAssertNotNil(alertView, @"Cannot create AIAAlertView");
-    XCTAssertEqualObjects(alertView.title, title, @"AIAAlertView created with different title");
-    XCTAssertEqualObjects(alertView.message, message, @"AIAAlertView created with different title");
+    [alertView addCancelButtonWithTitle:buttonTitle actionBlock:NULL];
+    [alertView show];
+    UIAlertView *nativeAlertView = [alertView nativeAlertView];
+
+    XCTAssertNotNil(nativeAlertView, @"Shown nativeAlertView is empty");
+    XCTAssert(nativeAlertView.numberOfButtons == 1, @"AIAAlertView should add only Cancel button");
+    XCTAssert(nativeAlertView.cancelButtonIndex == 0, @"AIAAlertView should add only Cancel button");
+    XCTAssertEqualObjects([nativeAlertView buttonTitleAtIndex:0], buttonTitle, @"AIAAlertView should add Cancel button with title");
+    XCTAssertEqual(nativeAlertView.delegate, alertView, @"AIAAlertView should set self as UIAlertView delegate");
 }
 
 @end

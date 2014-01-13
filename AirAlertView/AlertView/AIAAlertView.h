@@ -26,6 +26,11 @@ typedef void(^AIAAlertViewActionBlock)();
 @property (nonatomic, copy, readonly) NSString *message;
 
 /**
+ * @brief Return YES if alert view is displayed.
+ */
+@property (nonatomic, assign, readonly, getter=isShown) BOOL shown;
+
+/**
  * @brief Create new AIAAlertView instance with title and message.
  * @see -initWithTitle:message:
  */

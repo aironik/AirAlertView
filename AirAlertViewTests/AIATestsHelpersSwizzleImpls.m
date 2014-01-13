@@ -26,6 +26,7 @@
 @property (nonatomic, assign) BOOL methodWasReplaced;
 @property (nonatomic, assign) Class sourceClass;
 @property (nonatomic, assign) Class targetClass;
+@property (nonatomic, assign) IMP oldTargetImp;
 
 @end
 
@@ -51,6 +52,24 @@
     return result;
 }
 
+//- (void)replaceSourceSelector:(SEL)sourceSelector
+//                  sourceClass:(Class)sourceClass
+//               targetSelector:(SEL)targetSelector
+//                  targetClass:(Class)targetClass
+//{
+//    self.sourceSelector = sourceSelector;
+//    self.sourceClass = sourceClass;
+//    self.targetSelector = targetSelector;
+//    self.targetClass = targetClass;
+//
+//    self.sourceClassMethod = class_getClassMethod(self.sourceClass, self.sourceSelector);
+//    self.targetClassMethod = class_getClassMethod(self.targetClass, self.targetSelector);
+//
+//    self.sourceImp = method_getImplementation(self.sourceClassMethod);
+//    self.targetImp = method_getImplementation(self.targetClassMethod);
+//
+//    [self replace];
+//}
 - (void)replaceSourceSelector:(SEL)sourceSelector
                   sourceClass:(Class)sourceClass
                targetSelector:(SEL)targetSelector
@@ -70,9 +89,10 @@
                                           sourceSelector,
                                           method_getImplementation(self.targetClassMethod),
                                           method_getTypeEncoding(self.targetClassMethod));
-    if (methodWasAdded) {
-        [self replace];
-    }
+//    if (!methodWasAdded) {
+//        self.oldTargetImp = method_setImplementation(self.targetClassMethod, method_getImplementation(self.sourceClassMethod));
+//    }
+    [self replace];
 }
 
 - (void)replace {
@@ -85,10 +105,13 @@
 
 - (void)revert {
     if (self.methodWasReplaced) {
+//        if (self.oldTargetImp) {
+//            method_setImplementation(self.targetClassMethod, self.oldTargetImp);
+//        }
         class_replaceMethod(self.targetMetaClass,
                             self.targetSelector,
                             method_getImplementation(self.targetClassMethod),
-                            method_getTypeEncoding(self.sourceClassMethod));
+                            method_getTypeEncoding(self.targetClassMethod));
         self.methodWasReplaced = NO;
     }
 }

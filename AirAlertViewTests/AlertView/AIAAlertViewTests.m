@@ -153,12 +153,11 @@
 }
 
 - (void)testHideAlertViewWithoutCancelButton {
-    NSString *title = @"test title";
-    NSString *message = @"test message";
-    NSString *buttonTitle = @"OkButton";
-    AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:title message:message];
+    AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:@"test title" message:@"test message"];
     __block int counter = 0;
-    [alertView addButtonWithTitle:buttonTitle actionBlock:^{ ++counter; }];
+    [alertView addButtonWithTitle:@"OkButton" actionBlock:^{
+        ++counter;
+    }];
     [alertView show];
     UIAlertView *nativeAlertView = [alertView nativeAlertView];
 
@@ -169,12 +168,11 @@
 }
 
 - (void)testHideAlertViewWithCancelButton {
-    NSString *title = @"test title";
-    NSString *message = @"test message";
-    NSString *buttonTitle = @"CancelButton";
-    AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:title message:message];
+    AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:@"test title" message:@"test message"];
     __block int counter = 0;
-    [alertView addCancelButtonWithTitle:buttonTitle actionBlock:^{ ++counter; }];
+    [alertView addCancelButtonWithTitle:@"CancelButton" actionBlock:^{
+        ++counter;
+    }];
     [alertView show];
     UIAlertView *nativeAlertView = [alertView nativeAlertView];
 
@@ -185,9 +183,7 @@
 }
 
 - (void)testHideAlertViewWithButtonHandler {
-    NSString *title = @"test title";
-    NSString *message = @"test message";
-    AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:title message:message];
+    AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:@"test title" message:@"test message"];
     __block int counter1 = 0;
     __block int counter2 = 0;
     __block int counter3 = 0;
@@ -201,6 +197,75 @@
     XCTAssertEqual(counter1, 0, @"Regular expression should not involes");
     XCTAssertEqual(counter2, 1, @"Regular expression should involes");
     XCTAssertEqual(counter3, 0, @"Regular expression should not involes");
+}
+
+- (AIAAlertView *)alertViewWithOkAndCancelButtonsWithoutActionBlocks {
+    AIAAlertView *result = [AIAAlertView alertViewWithTitle:@"test title" message:@"test message"];
+    [result addButtonWithTitle:@"OkButton" actionBlock:NULL];
+    [result addCancelButtonWithTitle:@"CancelButton" actionBlock:NULL];
+    return result;
+}
+
+- (void)testExecuteDismissActionBlockWithoutButtonBlockNormalButtonAction {
+    AIAAlertView *alertView = [self alertViewWithOkAndCancelButtonsWithoutActionBlocks];
+    __block int counter = 0;
+    alertView.dismissActionBlock = ^{ ++counter; };
+    [alertView show];
+
+    UIAlertViewMock *nativeAlertView = (UIAlertViewMock *)[alertView nativeAlertView];
+    [nativeAlertView dismissWithClickedButtonIndex:0 animated:YES];
+
+    XCTAssertEqual(counter, 1, @"dismiss block didn't invokes once.");
+}
+
+- (void)testExecuteDismissActionBlockWithoutButtonBlockCancelButtonAction {
+    AIAAlertView *alertView = [self alertViewWithOkAndCancelButtonsWithoutActionBlocks];
+    __block int counter = 0;
+    alertView.dismissActionBlock = ^{ ++counter; };
+    [alertView show];
+
+    UIAlertViewMock *nativeAlertView = (UIAlertViewMock *)[alertView nativeAlertView];
+    [nativeAlertView dismissWithClickedButtonIndex:1 animated:YES];
+
+    XCTAssertEqual(counter, 1, @"dismiss block didn't invokes once.");
+}
+
+- (void)testExecuteDismissActionBlockWithButtonBlockNormalButtonAction {
+    NSString *buttonTitle1 = @"OkButton1";
+    NSString *buttonTitle2 = @"OkButton2";
+    NSString *cancelButtonTitle = @"cancelButton";
+    AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:@"test title" message:@"test message"];
+    [alertView addButtonWithTitle:buttonTitle1 actionBlock:^{}];
+    [alertView addButtonWithTitle:buttonTitle2 actionBlock:^{}];
+    [alertView addCancelButtonWithTitle:cancelButtonTitle actionBlock:^{}];
+
+    __block int counter = 0;
+    alertView.dismissActionBlock = ^{ ++counter; };
+    [alertView show];
+
+    UIAlertViewMock *nativeAlertView = (UIAlertViewMock *)[alertView nativeAlertView];
+    [nativeAlertView dismissWithClickedButtonIndex:0 animated:YES];
+
+    XCTAssertEqual(counter, 1, @"dismiss block didn't invokes once.");
+}
+
+- (void)testExecuteDismissActionBlockWithButtonBlockCancelButtonAction {
+    NSString *buttonTitle1 = @"OkButton1";
+    NSString *buttonTitle2 = @"OkButton2";
+    NSString *cancelButtonTitle = @"cancelButton";
+    AIAAlertView *alertView = [AIAAlertView alertViewWithTitle:@"test title" message:@"test message"];
+    [alertView addButtonWithTitle:buttonTitle1 actionBlock:^{}];
+    [alertView addButtonWithTitle:buttonTitle2 actionBlock:^{}];
+    [alertView addCancelButtonWithTitle:cancelButtonTitle actionBlock:^{}];
+
+    __block int counter = 0;
+    alertView.dismissActionBlock = ^{ ++counter; };
+    [alertView show];
+
+    UIAlertViewMock *nativeAlertView = (UIAlertViewMock *)[alertView nativeAlertView];
+    [nativeAlertView dismissWithClickedButtonIndex:2 animated:YES];
+
+    XCTAssertEqual(counter, 1, @"dismiss block didn't invokes once.");
 }
 
 @end

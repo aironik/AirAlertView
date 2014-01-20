@@ -31,6 +31,12 @@ typedef void(^AIAAlertViewActionBlock)();
 @property (nonatomic, assign, readonly, getter=isShown) BOOL shown;
 
 /**
+ * @brief The block code that executes on alert view dismiss.
+ * @details This code invokes on hide alert view after button handler.
+ */
+@property (nonatomic, copy) AIAAlertViewActionBlock dismissActionBlock;
+
+/**
  * @brief Create new AIAAlertView instance with title and message.
  * @see -initWithTitle:message:
  */

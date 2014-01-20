@@ -119,6 +119,14 @@
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
     NSParameterAssert(alertView == self.nativeAlertView);
 
+    [self performActionAtIndex:buttonIndex];
+
+    [self performDismissAction];
+
+    self.nativeAlertView = nil;
+}
+
+- (void)performActionAtIndex:(NSInteger)buttonIndex {
     AIAButtonDescriptor *buttonDescriptor = nil;
     if (buttonIndex >= 0 && buttonIndex < [self.buttonDescriptors count]) {
         buttonDescriptor = self.buttonDescriptors[buttonIndex];
@@ -130,8 +138,12 @@
         buttonDescriptor = self.cancelButtonDescriptor;
     }
     [buttonDescriptor perform];
-    self.nativeAlertView = nil;
 }
 
+- (void)performDismissAction {
+    if (self.dismissActionBlock) {
+        self.dismissActionBlock();
+    }
+}
 
 @end

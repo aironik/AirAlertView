@@ -50,7 +50,7 @@
 
 - (void)dismissWithClickedButtonIndex:(NSInteger)buttonIndex animated:(BOOL)animated {
     self.viewShown = NO;
-    [self.delegate alertView:self didDismissWithButtonIndex:buttonIndex];
+    [self.delegate alertView:self clickedButtonAtIndex:buttonIndex];
 }
 
 

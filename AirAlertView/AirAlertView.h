@@ -9,3 +9,4 @@
 #import <Foundation/Foundation.h>
 
 #import <AirAlertView/AlertView/AIAAlertView.h>
+#import <AirAlertView/ModalView/AIAModalView.h>

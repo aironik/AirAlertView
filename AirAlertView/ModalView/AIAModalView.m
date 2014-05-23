@@ -21,7 +21,6 @@ static const NSTimeInterval kAnimationDuration = 0.2;
 
 @property (nonatomic, strong) UIView *darkeningBackView;
 @property (nonatomic, strong) UIWindow *parentWindow;
-@property (nonatomic, strong) UIWindow *previouslyShownWindow;
 
 @property (nonatomic, strong) UITapGestureRecognizer *hideOnDarkeningBackViewGestureRecognizer;
 
@@ -64,13 +63,12 @@ static const NSTimeInterval kAnimationDuration = 0.2;
 
 - (void)show {
     if (![self isVisible]) {
-        [self showInWindow:[self createParentWindow]];
+        [self showInWindow:[[UIApplication sharedApplication] keyWindow]];
     }
 }
 
 - (void)showInWindow:(UIWindow *)parentWindow {
     if (![self isVisible]) {
-        self.previouslyShownWindow = [[UIApplication sharedApplication] keyWindow];
         self.parentWindow = parentWindow;
         
         [self prepareViewsForAppear];
@@ -99,36 +97,37 @@ static const NSTimeInterval kAnimationDuration = 0.2;
 
 - (void)prepareViewsForAppear {
     self.darkeningBackView = [self createDarkeningBackView];
-    self.darkeningBackView.frame = self.parentWindow.bounds;
-    [self.parentWindow addSubview:self.darkeningBackView];
-    
-    self.center = CGPointMake(CGRectGetMidX(self.parentWindow.bounds), CGRectGetMidY(self.parentWindow.bounds));
+
+    UIView *parentView = [[self.parentWindow subviews] count] ? [self.parentWindow subviews][0] : self.parentWindow;
+    self.darkeningBackView.frame = parentView.bounds;
+    [parentView addSubview:self.darkeningBackView];
+
+    self.center = self.darkeningBackView.center;
+    self.autoresizingMask = (UIViewAutoresizingFlexibleTopMargin
+                             | UIViewAutoresizingFlexibleBottomMargin
+                             | UIViewAutoresizingFlexibleLeftMargin
+                             | UIViewAutoresizingFlexibleRightMargin);
     [self.darkeningBackView addSubview:self];
 }
 
 - (void)prepareTransformsForAppear {
-    self.parentWindow.alpha = 0.;
+    self.darkeningBackView.alpha = 0.;
     CGAffineTransform transform = CGAffineTransformMakeScale(1.1, 1.1);
     self.transform = transform;
 }
 
 - (void)prepareTransformsAfterAppear {
-    self.parentWindow.alpha = 1.;
+    self.darkeningBackView.alpha = 1.;
     self.transform = CGAffineTransformIdentity;
 }
 
 - (void)hideOnDismiss {
-    self.parentWindow.alpha = 0.;
+    self.darkeningBackView.alpha = 0.;
     CGAffineTransform transform = CGAffineTransformMakeScale(0.9, 0.9);
     self.transform = transform;
 }
 
 - (void)finalizeOnDismiss {
-    self.parentWindow.alpha = 1.;
-    if (self.previouslyShownWindow != self.parentWindow) {
-        [self.previouslyShownWindow makeKeyAndVisible];
-    }
-    self.previouslyShownWindow = nil;
     self.parentWindow = nil;
     
     [self.darkeningBackView removeFromSuperview];
@@ -140,15 +139,6 @@ static const NSTimeInterval kAnimationDuration = 0.2;
 
 - (BOOL)isVisible {
     return self.parentWindow != nil;
-}
-
-- (UIWindow *)createParentWindow {
-    UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
-
-    UIWindow *result = [[UIWindow alloc] initWithFrame:keyWindow.frame];
-    result.windowLevel = UIWindowLevelAlert;
-    result.transform = keyWindow.transform;
-    return result;
 }
 
 - (UIView *)createDarkeningBackView {

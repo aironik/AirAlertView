@@ -116,7 +116,7 @@
 
 #pragma mark - UIAlertViewDelegate implementation
 
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     NSParameterAssert(alertView == self.nativeAlertView);
 
     [self performActionAtIndex:buttonIndex];

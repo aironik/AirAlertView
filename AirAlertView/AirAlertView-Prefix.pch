@@ -7,4 +7,8 @@
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
     #import <UIKit/UIKit.h>
+
+    #define AIA_WEAK_SELF __weak typeof(self) weakSelf = self
+    #define AIA_STRONG_SELF __strong typeof(weakSelf) strongSelf = weakSelf;
 #endif
+

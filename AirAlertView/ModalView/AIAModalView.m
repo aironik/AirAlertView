@@ -14,6 +14,9 @@
 #endif
 
 
+static const NSTimeInterval kAnimationDuration = 0.2;
+
+
 @interface AIAModalView ()<UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) UIView *darkeningBackView;
@@ -69,37 +72,70 @@
     if (![self isVisible]) {
         self.previouslyShownWindow = [[UIApplication sharedApplication] keyWindow];
         self.parentWindow = parentWindow;
-
-        self.darkeningBackView = [self createDarkeningBackView];
-        self.darkeningBackView.frame = self.parentWindow.bounds;
-        [self.parentWindow addSubview:self.darkeningBackView];
-
-        self.center = CGPointMake(CGRectGetMidX(self.parentWindow.bounds), CGRectGetMidY(self.parentWindow.bounds));
-        [self.darkeningBackView addSubview:self];
-
+        
+        [self prepareViewsForAppear];
+        [self prepareTransformsForAppear];
+        
         [self.parentWindow makeKeyAndVisible];
+        AIA_WEAK_SELF;
+        [UIView animateWithDuration:kAnimationDuration
+                              delay:0.
+                            options:UIViewAnimationOptionCurveEaseOut
+                         animations:^{ AIA_STRONG_SELF; [strongSelf prepareTransformsAfterAppear]; }
+                         completion:NULL];
     }
 }
 
 - (void)dismiss {
     if ([self isVisible]) {
-        __weak typeof(self) weakSelf = self;
-        void (^hideBlock)() = ^() {
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            if (strongSelf.previouslyShownWindow != strongSelf.parentWindow) {
-                [strongSelf.previouslyShownWindow makeKeyAndVisible];
-            }
-            strongSelf.previouslyShownWindow = nil;
-            strongSelf.parentWindow = nil;
-
-            [strongSelf.darkeningBackView removeFromSuperview];
-            strongSelf.hideOnDarkeningBackViewGestureRecognizer = nil;
-            strongSelf.darkeningBackView = nil;
-            
-            [strongSelf removeFromSuperview];
-        };
-        hideBlock();
+        AIA_WEAK_SELF;
+        [UIView animateWithDuration:kAnimationDuration
+                              delay:0.
+                            options:UIViewAnimationOptionCurveEaseIn
+                         animations:^{ AIA_STRONG_SELF; [strongSelf hideOnDismiss]; }
+                         completion:^(BOOL finished) { AIA_STRONG_SELF; [strongSelf finalizeOnDismiss]; }];
     }
+}
+
+- (void)prepareViewsForAppear {
+    self.darkeningBackView = [self createDarkeningBackView];
+    self.darkeningBackView.frame = self.parentWindow.bounds;
+    [self.parentWindow addSubview:self.darkeningBackView];
+    
+    self.center = CGPointMake(CGRectGetMidX(self.parentWindow.bounds), CGRectGetMidY(self.parentWindow.bounds));
+    [self.darkeningBackView addSubview:self];
+}
+
+- (void)prepareTransformsForAppear {
+    self.parentWindow.alpha = 0.;
+    CGAffineTransform transform = CGAffineTransformMakeScale(1.1, 1.1);
+    self.transform = transform;
+}
+
+- (void)prepareTransformsAfterAppear {
+    self.parentWindow.alpha = 1.;
+    self.transform = CGAffineTransformIdentity;
+}
+
+- (void)hideOnDismiss {
+    self.parentWindow.alpha = 0.;
+    CGAffineTransform transform = CGAffineTransformMakeScale(0.9, 0.9);
+    self.transform = transform;
+}
+
+- (void)finalizeOnDismiss {
+    self.parentWindow.alpha = 1.;
+    if (self.previouslyShownWindow != self.parentWindow) {
+        [self.previouslyShownWindow makeKeyAndVisible];
+    }
+    self.previouslyShownWindow = nil;
+    self.parentWindow = nil;
+    
+    [self.darkeningBackView removeFromSuperview];
+    self.hideOnDarkeningBackViewGestureRecognizer = nil;
+    self.darkeningBackView = nil;
+    
+    [self removeFromSuperview];
 }
 
 - (BOOL)isVisible {

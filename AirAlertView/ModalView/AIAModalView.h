@@ -18,6 +18,11 @@
 @property (nonatomic, strong) UIColor *backgroundColor;
 
 /**
+ * @#brief The color of view border.
+ */
+@property (nonatomic, strong) UIColor *borderColor;
+
+/**
  * @brief The radius to use when drawing background view.
  */
 @property (nonatomic, assign) CGFloat cornerRadius;

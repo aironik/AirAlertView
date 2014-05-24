@@ -15,7 +15,7 @@
 
 
 static const NSTimeInterval kAnimationDuration = 0.2;
-
+static const CGFloat kLineWidth = 2.;
 
 @interface AIAModalView ()<UIGestureRecognizerDelegate>
 
@@ -164,9 +164,37 @@ static const NSTimeInterval kAnimationDuration = 0.2;
     }
 }
 
+- (void)setBorderColor:(UIColor *)borderColor {
+    self.layer.borderColor = borderColor.CGColor;
+}
+
+- (UIColor *)borderColor {
+    return [UIColor colorWithCGColor:self.layer.borderColor];
+}
+
 - (void)setCornerRadius:(CGFloat)cornerRadius {
     _cornerRadius = cornerRadius;
     self.layer.cornerRadius = _cornerRadius;
+}
+
+- (void)drawRect:(CGRect)rect {
+    [super drawRect:rect];
+
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    [self drawBorderInContext:ctx];
+}
+
+- (void)drawBorderInContext:(CGContextRef)ctx {
+    CGContextSaveGState(ctx);
+
+    const CGFloat inset = kLineWidth / 2.;
+    CGRect borderRect = CGRectInset(self.bounds, inset, inset);
+    [self.borderColor setStroke];
+    UIBezierPath *borderPath = [UIBezierPath bezierPathWithRoundedRect:borderRect cornerRadius:self.layer.cornerRadius];
+    borderPath.lineWidth = kLineWidth;
+    [borderPath stroke];
+    
+    CGContextRestoreGState(ctx);
 }
 
 - (void)setContentView:(UIView *)contentView {
@@ -182,8 +210,13 @@ static const NSTimeInterval kAnimationDuration = 0.2;
 
         self.frame = frame;
         
-        [self addSubview:_contentView];
+        [super addSubview:_contentView];
     }
+}
+
+- (void)addSubview:(UIView *)view {
+    NSAssert(NO, @"you should use -setContentView: instead");
+    [self setContentView:view];
 }
 
 - (IBAction)tapDidRecognize:(UITapGestureRecognizer *)gestureRecognizer {

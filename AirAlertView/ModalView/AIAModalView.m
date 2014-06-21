@@ -71,6 +71,8 @@ static const CGFloat kLineWidth = 2.;
     if (![self isVisible]) {
         self.parentWindow = parentWindow;
         
+        [self copyTintColorFromView:[[UIApplication sharedApplication] keyWindow] toView:self.parentWindow];
+        
         [self prepareViewsForAppear];
         [self prepareTransformsForAppear];
         
@@ -93,6 +95,14 @@ static const CGFloat kLineWidth = 2.;
                          animations:^{ AIA_STRONG_SELF; [strongSelf hideOnDismiss]; }
                          completion:^(BOOL finished) { AIA_STRONG_SELF; [strongSelf finalizeOnDismiss]; }];
     }
+}
+
+- (void)copyTintColorFromView:(UIView *)fromView toView:(UIView *)toView {
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0
+    if ([fromView respondsToSelector:@selector(tintColor)] && [toView respondsToSelector:@selector(setTintColor)]) {
+        [toView setTintColor:fromView.tintColor];
+    }
+#endif // __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0
 }
 
 - (void)prepareViewsForAppear {

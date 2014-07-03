@@ -99,7 +99,7 @@ static const CGFloat kLineWidth = 2.;
 
 - (void)copyTintColorFromView:(UIView *)fromView toView:(UIView *)toView {
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0
-    if ([fromView respondsToSelector:@selector(tintColor)] && [toView respondsToSelector:@selector(setTintColor)]) {
+    if ([fromView respondsToSelector:@selector(tintColor)] && [toView respondsToSelector:@selector(setTintColor:)]) {
         [toView setTintColor:fromView.tintColor];
     }
 #endif // __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0

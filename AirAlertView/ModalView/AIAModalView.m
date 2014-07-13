@@ -71,6 +71,8 @@ static const CGFloat kLineWidth = 2.;
     if (![self isVisible]) {
         self.parentWindow = parentWindow;
         
+        [self viewWillAppear];
+        
         [self copyTintColorFromView:[[UIApplication sharedApplication] keyWindow] toView:self.parentWindow];
         
         [self prepareViewsForAppear];
@@ -82,18 +84,20 @@ static const CGFloat kLineWidth = 2.;
                               delay:0.
                             options:UIViewAnimationOptionCurveEaseOut
                          animations:^{ AIA_STRONG_SELF; [strongSelf prepareTransformsAfterAppear]; }
-                         completion:NULL];
+                         completion:^(BOOL finished) { AIA_STRONG_SELF; [strongSelf viewDidAppear]; }];
     }
 }
 
 - (void)dismiss {
     if ([self isVisible]) {
+        [self viewWillDisappear];
+        
         AIA_WEAK_SELF;
         [UIView animateWithDuration:kAnimationDuration
                               delay:0.
                             options:UIViewAnimationOptionCurveEaseIn
                          animations:^{ AIA_STRONG_SELF; [strongSelf hideOnDismiss]; }
-                         completion:^(BOOL finished) { AIA_STRONG_SELF; [strongSelf finalizeOnDismiss]; }];
+                         completion:^(BOOL finished) { AIA_STRONG_SELF; [strongSelf finalizeOnDismiss]; [strongSelf viewDidDisappear]; }];
     }
 }
 
@@ -145,6 +149,23 @@ static const CGFloat kLineWidth = 2.;
     self.darkeningBackView = nil;
     
     [self removeFromSuperview];
+}
+
+
+- (void)viewWillAppear {
+    [self.contentViewController viewWillAppear:YES];
+}
+
+- (void)viewDidAppear {
+    [self.contentViewController viewDidAppear:YES];
+}
+
+- (void)viewWillDisappear {
+    [self.contentViewController viewWillDisappear:YES];
+}
+
+- (void)viewDidDisappear {
+    [self.contentViewController viewDidAppear:YES];
 }
 
 - (BOOL)isVisible {
@@ -211,6 +232,8 @@ static const CGFloat kLineWidth = 2.;
     if (_contentView != contentView) {
         [_contentView removeFromSuperview];
 
+        self.contentViewController = nil;
+        
         _contentView = contentView;
         _contentView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
 
@@ -221,6 +244,14 @@ static const CGFloat kLineWidth = 2.;
         self.frame = frame;
         
         [super addSubview:_contentView];
+    }
+}
+
+- (void)setContentViewController:(UIViewController *)contentViewController {
+    if (_contentViewController != contentViewController) {
+        _contentViewController = nil;       // < avoid recursion
+        self.contentView = contentViewController.view;
+        _contentViewController = contentViewController;
     }
 }
 

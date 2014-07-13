@@ -40,9 +40,15 @@
 
 /**
  * @brief The view that represent content.
- * @details This view defines size and content.
+ * @details This view defines size and content. On set clean contentViewController.
  */
 @property (nonatomic, strong) UIView *contentView;
+
+/**
+ * @brief The view controller with view that will shown as content view.
+ * @details On set replace contentView.
+ */
+@property (nonatomic, strong) UIViewController *contentViewController;
 
 /**
  * @brief Show view in new modal window.

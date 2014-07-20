@@ -24,6 +24,8 @@ static const CGFloat kLineWidth = 2.;
 
 @property (nonatomic, strong) UITapGestureRecognizer *hideOnDarkeningBackViewGestureRecognizer;
 
+@property (nonatomic, assign) CGRect originalFrame;
+
 @end
 
 
@@ -122,6 +124,7 @@ static const CGFloat kLineWidth = 2.;
                              | UIViewAutoresizingFlexibleLeftMargin
                              | UIViewAutoresizingFlexibleRightMargin);
     [self.darkeningBackView addSubview:self];
+    self.originalFrame = self.frame;
 }
 
 - (void)prepareTransformsForAppear {
@@ -158,9 +161,11 @@ static const CGFloat kLineWidth = 2.;
 
 - (void)viewDidAppear {
     [self.contentViewController viewDidAppear:YES];
+    [self subscribeForKeyboardNotifications];
 }
 
 - (void)viewWillDisappear {
+    [self unsubscribeForKeyboardNotifications];
     [self.contentViewController viewWillDisappear:YES];
 }
 
@@ -265,6 +270,62 @@ static const CGFloat kLineWidth = 2.;
     if (self.hideOnTapOutside) {
         [self dismiss];
     }
+}
+
+- (void)subscribeForKeyboardNotifications {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
+}
+
+- (void)unsubscribeForKeyboardNotifications {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+}
+
+
+#pragma mark - Keyboard Notification Handlers
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+    CGRect frame = self.originalFrame;
+    const CGRect keyboardFrame = [self keyboardFrameFromNotification:notification];
+    const CGFloat keyboardY = CGRectGetMinY(keyboardFrame);
+    const CGFloat minMargin = 20.;
+    CGRectOffset(frame, 0., CGRectGetHeight(keyboardFrame) / 2.);
+
+    if ((CGRectGetMaxY(frame) > keyboardY - minMargin) || (CGRectGetMinY(frame) < minMargin)) {
+        const CGFloat heightSpace = CGRectGetMinY(keyboardFrame) - (2 * minMargin);
+        const CGFloat height = MIN(heightSpace, CGRectGetHeight(self.frame));
+        frame.origin.y = keyboardY - height - minMargin;
+        frame.size.height = height;
+    }
+    AIA_WEAK_SELF;
+    [UIView animateWithDuration:0.3 animations:^{
+        AIA_STRONG_SELF;
+        strongSelf.frame = frame;
+    }];
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification {
+    if (!CGRectEqualToRect(self.frame, self.originalFrame)) {
+        [UIView animateWithDuration:0.3 animations:^{
+            self.frame = self.originalFrame;
+        }];
+    }
+}
+
+- (CGRect)keyboardFrameFromNotification:(NSNotification *)notification {
+    NSDictionary *userInfo = [notification userInfo];
+
+    CGRect result = CGRectZero;
+    [userInfo[UIKeyboardFrameEndUserInfoKey] getValue:&result];
+    result = [self.superview convertRect:result fromView:nil];
+    return result;
 }
 
 

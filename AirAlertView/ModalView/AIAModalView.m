@@ -170,7 +170,7 @@ static const CGFloat kLineWidth = 2.;
 }
 
 - (void)viewDidDisappear {
-    [self.contentViewController viewDidAppear:YES];
+    [self.contentViewController viewDidDisappear:YES];
 }
 
 - (BOOL)isVisible {

@@ -15,7 +15,7 @@
 /**
  * @brief The color for painting background view.
  */
-@property (nonatomic, strong) UIColor *backgroundColor;
+@property (nonatomic, strong) UIColor *darkeningColor;
 
 /**
  * @#brief The color of view border.

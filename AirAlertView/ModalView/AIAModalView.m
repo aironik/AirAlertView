@@ -54,11 +54,9 @@ static const CGFloat kLineWidth = 2.;
 }
 
 - (void)setup {
-    _backgroundColor = [UIColor colorWithWhite:0.9 alpha:0.9];
     _cornerRadius = 10.;
     _hideOnTapOutside = YES;
 
-    super.backgroundColor = _backgroundColor;
     self.layer.cornerRadius = _cornerRadius;
     self.clipsToBounds = YES;
 }
@@ -179,7 +177,7 @@ static const CGFloat kLineWidth = 2.;
 
 - (UIView *)createDarkeningBackView {
     UIView *result = [[UIView alloc] initWithFrame:self.frame];
-    result.backgroundColor = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5];
+    result.backgroundColor = _darkeningColor ? _darkeningColor : [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5];
     result.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
 
     self.hideOnDarkeningBackViewGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
@@ -193,10 +191,10 @@ static const CGFloat kLineWidth = 2.;
     return result;
 }
 
-- (void)setBackgroundColor:(UIColor *)backgroundColor {
-    if (_backgroundColor != backgroundColor) {
-        _backgroundColor = backgroundColor;
-        super.backgroundColor = _backgroundColor;
+- (void)setDarkeningColor:(UIColor *)darkeningColor {
+    if (_darkeningColor != darkeningColor) {
+        _darkeningColor = darkeningColor;
+        _darkeningBackView.backgroundColor = _darkeningColor;
     }
 }
 

@@ -21,17 +21,6 @@
 
 @implementation AIADViewController
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 2;
@@ -65,6 +54,9 @@
             case 1:
                 result.textLabel.text = @"AIAModalView";
                 break;
+            case 2:
+                result.textLabel.text = @"AIAPageSliderView";
+                break;
         }
     }
     return result;
@@ -80,6 +72,9 @@
                 break;
             case 1:
                 [self showModalView];
+                break;
+            case 2:
+                [self showPageSliderView];
                 break;
                 
             default:
@@ -126,6 +121,10 @@
     self.modalView.contentView = contentView;
     self.modalView.hideOnTapOutside = YES;
     [self.modalView show];
+}
+
+- (void)showPageSliderView {
+    // TODO: write me
 }
 
 - (IBAction)changeText:(UIButton *)sender {

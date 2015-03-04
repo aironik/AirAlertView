@@ -44,6 +44,10 @@
     return [UIAlertViewMock allocWithZone:NULL];
 }
 
+- (instancetype)initWithTitle:(NSString *)title message:(NSString *)message {
+    return [self init];
+}
+
 - (void)show {
     self.viewShown = YES;
 }
@@ -63,10 +67,10 @@
 
 - (void)setUp {
     [super setUp];
-    self.swizzleImplsHelper = [AIATestsHelpersSwizzleImpls replaceSourceSelector:@selector(allocAlertView)
-                                                                     sourceClass:[UIAlertViewMock class]
-                                                                  targetSelector:@selector(alloc)
-                                                                     targetClass:[UIAlertView class]];
+    self.swizzleImplsHelper = [AIATestsHelpersSwizzleImpls replaceClassSourceSelector:@selector(allocAlertView)
+                                                                          sourceClass:[UIAlertViewMock class]
+                                                                       targetSelector:@selector(alloc)
+                                                                          targetClass:[UIAlertView class]];
 }
 
 - (void)tearDown {

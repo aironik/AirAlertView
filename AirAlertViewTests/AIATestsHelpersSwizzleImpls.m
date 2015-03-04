@@ -21,9 +21,10 @@
 @property (nonatomic, assign) Class targetMetaClass;
 @property (nonatomic, assign) SEL sourceSelector;
 @property (nonatomic, assign) SEL targetSelector;
-@property (nonatomic, assign) Method sourceClassMethod;
-@property (nonatomic, assign) Method targetClassMethod;
+@property (nonatomic, assign) Method sourceMethod;
+@property (nonatomic, assign) Method targetMethod;
 @property (nonatomic, assign) BOOL methodWasReplaced;
+@property (nonatomic, assign) BOOL methodsExchanged;
 @property (nonatomic, assign) Class sourceClass;
 @property (nonatomic, assign) Class targetClass;
 @property (nonatomic, assign) IMP oldTargetImp;
@@ -39,81 +40,88 @@
     [self revert];
 }
 
-+ (instancetype)replaceSourceSelector:(SEL)sourceSelector
-                          sourceClass:(Class)sourceClass
-                       targetSelector:(SEL)targetSelector
-                          targetClass:(Class)targetClass;
++ (instancetype)replaceClassSourceSelector:(SEL)sourceSelector
+                               sourceClass:(Class)sourceClass
+                            targetSelector:(SEL)targetSelector
+                               targetClass:(Class)targetClass
 {
     AIATestsHelpersSwizzleImpls *result = [[[self class] alloc] init];
     [result replaceSourceSelector:sourceSelector
                       sourceClass:sourceClass
                    targetSelector:targetSelector
-                      targetClass:targetClass];
+                      targetClass:targetClass
+                       onInstance:NO];
     return result;
 }
 
-//- (void)replaceSourceSelector:(SEL)sourceSelector
-//                  sourceClass:(Class)sourceClass
-//               targetSelector:(SEL)targetSelector
-//                  targetClass:(Class)targetClass
-//{
-//    self.sourceSelector = sourceSelector;
-//    self.sourceClass = sourceClass;
-//    self.targetSelector = targetSelector;
-//    self.targetClass = targetClass;
-//
-//    self.sourceClassMethod = class_getClassMethod(self.sourceClass, self.sourceSelector);
-//    self.targetClassMethod = class_getClassMethod(self.targetClass, self.targetSelector);
-//
-//    self.sourceImp = method_getImplementation(self.sourceClassMethod);
-//    self.targetImp = method_getImplementation(self.targetClassMethod);
-//
-//    [self replace];
-//}
++ (instancetype)replaceInstanceSourceSelector:(SEL)sourceSelector
+                                  sourceClass:(Class)sourceClass
+                               targetSelector:(SEL)targetSelector
+                                  targetClass:(Class)targetClass
+{
+    AIATestsHelpersSwizzleImpls *result = [[[self class] alloc] init];
+    [result replaceSourceSelector:sourceSelector
+                      sourceClass:sourceClass
+                   targetSelector:targetSelector
+                      targetClass:targetClass
+                       onInstance:YES];
+    return result;
+
+}
+
 - (void)replaceSourceSelector:(SEL)sourceSelector
                   sourceClass:(Class)sourceClass
                targetSelector:(SEL)targetSelector
                   targetClass:(Class)targetClass
+                   onInstance:(BOOL)onInstance
 {
     self.sourceClass = sourceClass;
     self.targetClass = targetClass;
     self.sourceSelector = sourceSelector;
     self.targetSelector = targetSelector;
-    self.sourceClassMethod = class_getClassMethod(self.sourceClass, self.sourceSelector);
-    self.targetClassMethod = class_getClassMethod(self.targetClass, self.targetSelector);
 
-    self.targetMetaClass =
-            objc_getMetaClass([NSStringFromClass(self.targetClass) cStringUsingEncoding:NSUTF8StringEncoding]);
+    self.targetMetaClass = objc_getMetaClass([NSStringFromClass(self.targetClass) cStringUsingEncoding:NSUTF8StringEncoding]);
+    self.methodsExchanged = class_addMethod(self.targetMetaClass,
+                                 sourceSelector,
+                                 method_getImplementation(self.targetMethod),
+                                 method_getTypeEncoding(self.targetMethod));
+    
+    if (onInstance) {
+        self.sourceMethod = class_getInstanceMethod(self.sourceClass, self.sourceSelector);
+        self.targetMethod = class_getInstanceMethod(self.targetClass, self.targetSelector);
+    }
+    else {
+        self.sourceMethod = class_getClassMethod(self.sourceClass, self.sourceSelector);
+        self.targetMethod = class_getClassMethod(self.targetClass, self.targetSelector);
+    }
 
-//    BOOL methodWasAdded =
-    class_addMethod(self.targetMetaClass,
-                    sourceSelector,
-                    method_getImplementation(self.targetClassMethod),
-                    method_getTypeEncoding(self.targetClassMethod));
-//    if (!methodWasAdded) {
-//        self.oldTargetImp = method_setImplementation(self.targetClassMethod, method_getImplementation(self.sourceClassMethod));
-//    }
-    [self replace];
-}
-
-- (void)replace {
-    class_replaceMethod(self.targetMetaClass,
-                        self.targetSelector,
-                        method_getImplementation(self.sourceClassMethod),
-                        method_getTypeEncoding(self.sourceClassMethod));
+    NSLog(@"Method %@ added: %@", NSStringFromSelector(self.targetSelector), self.methodsExchanged ? @"YES" : @"NO");
+    if (self.methodsExchanged) {
+        class_replaceMethod(self.targetMetaClass,
+                            self.targetSelector,
+                            method_getImplementation(self.sourceMethod),
+                            method_getTypeEncoding(self.sourceMethod));
+    }
+    else {
+        self.oldTargetImp = method_getImplementation(self.targetMethod);
+        const IMP impForReplace = method_getImplementation(self.sourceMethod);
+        method_setImplementation(self.targetMethod, impForReplace);
+    }
     self.methodWasReplaced = YES;
 }
 
 - (void)revert {
     if (self.methodWasReplaced) {
-//        if (self.oldTargetImp) {
-//            method_setImplementation(self.targetClassMethod, self.oldTargetImp);
-//        }
-        class_replaceMethod(self.targetMetaClass,
-                            self.targetSelector,
-                            method_getImplementation(self.targetClassMethod),
-                            method_getTypeEncoding(self.targetClassMethod));
-        self.methodWasReplaced = NO;
+        if (self.methodsExchanged) {
+            class_replaceMethod(self.targetMetaClass,
+                                self.targetSelector,
+                                method_getImplementation(self.targetMethod),
+                                method_getTypeEncoding(self.targetMethod));
+        }
+        else {
+            method_setImplementation(self.targetMethod, self.oldTargetImp);
+            self.methodWasReplaced = NO;
+        }
     }
 }
 

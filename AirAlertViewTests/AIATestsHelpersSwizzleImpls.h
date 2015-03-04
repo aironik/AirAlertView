@@ -13,10 +13,14 @@
  */
 @interface AIATestsHelpersSwizzleImpls : NSObject
 
-+ (instancetype)replaceSourceSelector:(SEL)sourceSelector
-                          sourceClass:(Class)sourceClass
-                       targetSelector:(SEL)targetSelector
-                          targetClass:(Class)targetClass;
++ (instancetype)replaceClassSourceSelector:(SEL)sourceSelector
+                               sourceClass:(Class)sourceClass
+                            targetSelector:(SEL)targetSelector
+                               targetClass:(Class)targetClass;
++ (instancetype)replaceInstanceSourceSelector:(SEL)sourceSelector
+                                  sourceClass:(Class)sourceClass
+                               targetSelector:(SEL)targetSelector
+                                  targetClass:(Class)targetClass;
 
 - (void)revert;
 

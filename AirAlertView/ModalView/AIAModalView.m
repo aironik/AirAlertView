@@ -304,18 +304,12 @@ static const CGFloat kLineWidth = 2.;
         frame.origin.y = keyboardY - height - minMargin;
         frame.size.height = height;
     }
-    AIA_WEAK_SELF;
-    [UIView animateWithDuration:0.3 animations:^{
-        AIA_STRONG_SELF;
-        strongSelf.frame = frame;
-    }];
+    self.frame = frame;
 }
 
 - (void)keyboardWillHide:(NSNotification *)notification {
     if (!CGRectEqualToRect(self.frame, self.originalFrame)) {
-        [UIView animateWithDuration:0.3 animations:^{
-            self.frame = self.originalFrame;
-        }];
+        self.frame = self.originalFrame;
     }
 }
 

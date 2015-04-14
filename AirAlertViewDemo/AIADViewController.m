@@ -11,7 +11,7 @@
 #import <AirAlertView/AirAlertView.h>
 
 
-@interface AIADViewController ()
+@interface AIADViewController () <UITextFieldDelegate>
 
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, strong) AIAModalView *modalView;
@@ -108,16 +108,26 @@
 - (void)showModalView {
     self.modalView = [[AIAModalView alloc] init];
     
-    UIView *contentView = [[UIView alloc] initWithFrame:CGRectMake(0., 0., 300., 210.)];
+    const CGFloat margin = 10.f;
+    const CGFloat width = 300.f;
+    const CGFloat itemHeight = 70.f;
+    UIView *contentView = [[UIView alloc] initWithFrame:CGRectMake(0., 0., width, itemHeight * 4 + 100.f)];
     
-    for (NSInteger idx = 0; idx < 3; ++idx) {
+    NSInteger idx = 0;
+    UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(margin, idx * itemHeight + margin,
+                                                                           width - 2 * margin, itemHeight)];
+    textField.placeholder = @"Text Field";
+    textField.delegate = self;
+
+    for (idx = 1; idx < 4; ++idx) {
         UIButton *actionButton = [UIButton buttonWithType:UIButtonTypeCustom];
         [actionButton addTarget:self action:@selector(changeText:) forControlEvents:UIControlEventTouchUpInside];
         [actionButton setTitle:[NSString stringWithFormat:@"%d", idx + 3] forState:UIControlStateNormal];
         [actionButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        actionButton.frame = CGRectMake(0., idx * 70., 300., 70.);
+        actionButton.frame = CGRectMake(0., idx * itemHeight, width, itemHeight);
         [contentView addSubview:actionButton];
     }
+    [contentView addSubview:textField];
     self.modalView.contentView = contentView;
     self.modalView.hideOnTapOutside = YES;
     [self.modalView show];
@@ -131,6 +141,11 @@
     self.text = sender.currentTitle;
     [self.tableView reloadData];
     [self.modalView dismiss];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return YES;
 }
 
 
